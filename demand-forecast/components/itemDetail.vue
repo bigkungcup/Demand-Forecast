@@ -50,7 +50,7 @@
         <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
             <v-btn rounded class="tw-text-white tw-bg-blue-600 tw-w-36"
                 @click="calSumX(), calSumY(), calMeanY(), getStandardDeviation(), calSumPower(), calSumXY(), calMeanX(), calB1(), calB0(), calPredict(),
-                    calError(), calAbsError(), calErrorPower(), calMAD(), calOrderPerbottle(), calEOQ(), calROP(), updateChart()">OK</v-btn>
+                    calError(), calAbsError(), calErrorPower(), calMAD(), calOrderPerbottle(), calEOQ(), calROP(), saveData(), updateChart()">OK</v-btn>
         </v-card-text>
     </v-card>
     <hr class="tw-border-black tw-bg-black">
@@ -255,12 +255,26 @@ const EOQ = ref(0);
 const ROP = ref(0);
 
 onBeforeMount(() => {
-    for (let i = 0; i < 52; i++) {
-        const data = {
-            week: i + 1,
-            value: props.number[i]
+    let dataSingha = null;
+    let dataChang = null;
+
+    if(process.client){
+        dataSingha = localStorage.getItem('storedDataSingha');
+        dataChang = localStorage.getItem('storedDataChang');
+    }
+
+    if(dataSingha !== null && props.name === "SINGHA"){
+        inputList.value = JSON.parse(dataSingha);
+    }else if( dataChang !== null && props.name === "CHANG"){
+        inputList.value = JSON.parse(dataChang);
+    }else{
+        for (let i = 0; i < 52; i++) {
+            const data = {
+                week: i + 1,
+                value: props.number[i]
+            }
+            inputList.value.push(data);
         }
-        inputList.value.push(data);
     }
 
     // for (let i = 0; i < 52; i++) {
@@ -449,6 +463,14 @@ function calROP() {
     ROP.value = 0;
     ROP.value = Math.round(Number(((meanY.value * props.l) + props.ss).toFixed(2)));
     console.log("EOQ: ", EOQ.value);
+}
+
+function saveData(){
+    if(props.name === "SIGNHA"){
+        localStorage.setItem('storedDataSigha', JSON.stringify(inputList.value));
+    }else if(props.name === "CHANG"){
+        localStorage.setItem('storedDataChang', JSON.stringify(inputList.value));
+    }
 }
 
 // function calculateStandardDeviation(numbers: Array<number>) {

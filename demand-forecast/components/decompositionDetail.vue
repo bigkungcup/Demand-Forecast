@@ -50,7 +50,7 @@
         <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
             <v-btn rounded class="tw-text-white tw-bg-blue-600 tw-w-36"
                 @click="calSumX(), calSumY(), calMeanY(), getStandardDeviation(), calCMA1(), calCMA2(), calSF(), calSI(), calSIMean(), calDeaseasonalizedData(),
-                    calSumXY(), calSumPower(), calMeanX(), calB1(), calB0(), calTrend(), calForecast(), calError(), calAbsError(), calMAD(), calEOQ(), calROP(), updateChart()">OK</v-btn>
+                    calSumXY(), calSumPower(), calMeanX(), calB1(), calB0(), calTrend(), calForecast(), calError(), calAbsError(), calMAD(), calEOQ(), calROP(), saveData(), updateChart()">OK</v-btn>
         </v-card-text>
     </v-card>
     <hr class="tw-border-black tw-bg-black">
@@ -288,14 +288,37 @@ const ROP = ref(0);
 const checkButton = ref(false);
 
 
+
 onBeforeMount(() => {
-    for (let i = 0; i < 52; i++) {
-        const data = {
-            week: i + 1,
-            value: props.number[i]
-        }
-        inputList.value.push(data);
+    let dataRegency = null;
+    let dataSangsom = null;
+    let dataHongthong = null;
+
+    if (process.client) {
+        dataRegency = localStorage.getItem('storedDataRegency');
+        dataSangsom = localStorage.getItem('storedDataSangsom');
+        dataHongthong = localStorage.getItem('storedDataHongthong');
     }
+
+    if (dataRegency != null && props.name === "REGENCY") {
+        inputList.value = JSON.parse(dataRegency);
+    } else if (dataSangsom != null && props.name === "SANGSOM") {
+        inputList.value = JSON.parse(dataSangsom);
+    } else if (dataHongthong != null && props.name === "HONGTHONG") {
+        inputList.value = JSON.parse(dataHongthong);
+    } else {
+        for (let i = 0; i < 52; i++) {
+            const data = {
+                week: i + 1,
+                value: props.number[i]
+            }
+            inputList.value.push(data);
+        }
+    }
+
+    // const dataRegency = localStorage.getItem('storedDataRegency');
+    // const dataSangsom = localStorage.getItem('storedDataSangsom');
+    // const dataHongthong = localStorage.getItem('storedDataHongthong');
 
     // for (let i = 0; i < 52; i++) {
     //     const data = {
@@ -609,6 +632,16 @@ function calAbsError() {
     })
     console.log("Absolute Error: ", absError.value);
     console.log("Sum Absolute Error: ", sumAbsError.value);
+}
+
+function saveData() {
+    if (props.name === "HONGTHONG") {
+        localStorage.setItem('storedDataHongthong', JSON.stringify(inputList.value));
+    } else if (props.name === "REGENCY") {
+        localStorage.setItem('storedDataRegency', JSON.stringify(inputList.value));
+    } else if (props.name === "SANGSOM") {
+        localStorage.setItem('storedDataSangsom', JSON.stringify(inputList.value));
+    }
 }
 
 // function calErrorPower() {

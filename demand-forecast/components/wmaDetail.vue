@@ -41,7 +41,7 @@
 
         <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
             <v-btn rounded class="tw-text-white tw-bg-blue-600 tw-w-36" @click="calSumY(), calMeanY(), getStandardDeviation(), calPredict(), calError(),
-                calAbsError(), calErrorPower(), calMAD(), calEOQ(), calROP(), updateChart()">OK</v-btn>
+                calAbsError(), calErrorPower(), calMAD(), calEOQ(), calROP(), updateChart(), saveData()">OK</v-btn>
         </v-card-text>
     </v-card>
     <hr class="tw-border-black tw-bg-black">
@@ -243,13 +243,27 @@ const predictOrderPerBottle = ref(0);
 const EOQ = ref(0);
 const ROP = ref(0);
 
+
+
 onBeforeMount(() => {
-    for (let i = 0; i < 52; i++) {
-        const data = {
-            week: i + 1,
-            value: props.number[i]
+    let dataBlend = null;
+    let dataLeo = null;
+    if(process.client){
+        dataBlend = localStorage.getItem('storedDataBlend');
+        dataLeo = localStorage.getItem('storedDataLeo');
+    }
+    if(dataBlend != null && props.name == "BLEND 285"){
+        inputList.value = JSON.parse(dataBlend);
+    }else if(dataLeo != null && props.name == "LEO"){
+        inputList.value = JSON.parse(dataLeo);
+    }else{
+        for (let i = 0; i < 52; i++) {
+            const data = {
+                week: i + 1,
+                value: props.number[i]
+            }
+            inputList.value.push(data);
         }
-        inputList.value.push(data);
     }
 
     // for (let i = 0; i < 52; i++) {
@@ -471,6 +485,14 @@ function calROP() {
     const sumPredictEOQ = sumPredict.value - (predict.value[predict.value.length - 1]);
     ROP.value = Math.round(Number((((sumPredictEOQ / 49) * props.l) + props.ss).toFixed(2)));
     console.log("ROP: ", ROP.value);
+}
+
+function saveData(){
+    if(props.name == "BLEND 285"){
+        localStorage.setItem('storedDataBlend', JSON.stringify(inputList.value));
+    }else if(props.name == "LEO"){
+        localStorage.setItem('storedDataLeo', JSON.stringify(inputList.value));
+    }
 }
 
 function addInput() {
