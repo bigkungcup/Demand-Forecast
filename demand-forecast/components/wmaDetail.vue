@@ -244,21 +244,21 @@ const EOQ = ref(0);
 const ROP = ref(0);
 
 onBeforeMount(() => {
-    // for (let i = 0; i < 52; i++) {
-    //     const data = {
-    //         week: i + 1,
-    //         value: props.number[i]
-    //     }
-    //     inputList.value.push(data);
-    // }
-
     for (let i = 0; i < 52; i++) {
         const data = {
             week: i + 1,
-            value: 0
+            value: props.number[i]
         }
         inputList.value.push(data);
     }
+
+    // for (let i = 0; i < 52; i++) {
+    //     const data = {
+    //         week: i + 1,
+    //         value: 0
+    //     }
+    //     inputList.value.push(data);
+    // }
 
 })
 
