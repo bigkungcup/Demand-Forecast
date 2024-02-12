@@ -23,14 +23,6 @@
                 <div>
                     ข้อมูลยอดขาย (สูงสุด 52 สัปดาห์)
                 </div>
-                <!-- <div class="tw-flex tw-items-center tw-space-x-5">
-                    <span>
-                        จำนวนข้อมูลรายอาทิตย์
-                    </span>
-                    <v-responsive max-width="80">
-                        <v-text-field clearable hide-details="auto"></v-text-field>
-                    </v-responsive>
-                </div> -->
             </div>
 
             <div class="tw-grid tw-grid-cols-4 tw-gap-5 tw-items-center">
@@ -48,9 +40,8 @@
         </v-card-text>
 
         <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
-            <v-btn rounded class="tw-text-white tw-bg-blue-600 tw-w-36"
-                @click="calSumX(), calSumY(), calMeanY(), getStandardDeviation(), calSumPower(), calSumXY(), calMeanX(), calB1(), calB0(), calPredict(),
-                    calError(), calAbsError(), calErrorPower(), calMAD(), calOrderPerbottle(), calEOQ(), calROP(), updateChart()">OK</v-btn>
+            <v-btn rounded class="tw-text-white tw-bg-blue-600 tw-w-36" @click="calSumY(), calMeanY(), getStandardDeviation(), calPredict(), calError(),
+                calAbsError(), calErrorPower(), calMAD(), calEOQ(), calROP(), updateChart()">OK</v-btn>
         </v-card-text>
     </v-card>
     <hr class="tw-border-black tw-bg-black">
@@ -64,9 +55,6 @@
                 <div class="tw-text-xl tw-font-extrabold tw-justify-center tw-flex">ค่าพยากรณ์ยอดขายปีถัดไป (หน่วย : ขวด)
                 </div>
                 <apexchart :key="series" height="400" width="1100" :options="options" :series="series"></apexchart>
-                <!-- <button class="tw-bg-blue-500 tw-hover:bg-blue-700 tw-text-white tw-font-bold tw-py-2 tw-px-4 rounded" @click="updateChart">
-                    Change
-                </button> -->
             </div>
         </div>
         <div class="tw-grid tw-grid-cols-3 tw-gap-5">
@@ -127,8 +115,6 @@
             </div>
 
             <div>
-
-
                 <v-card-title
                     class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
                     ยอดพยากรณ์สัปดาห์ถัดไป
@@ -172,20 +158,6 @@
                     </v-card-text>
                 </div>
             </div>
-
-            <!-- <div class="tw-col-span-2">
-                <v-card-title
-                    class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
-                    ความคลาดเคลื่อนกำลังสองเฉลี่ย (MSE)
-                </v-card-title>
-
-                <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
-                    <v-responsive class="mx-auto" max-width="270">
-                        <v-text-field clearable hide-details="auto" label="ความคลาดเคลื่อนกำลังสองเฉลี่ย"></v-text-field>
-                    </v-responsive>
-                </v-card-text>
-            </div> -->
-
         </div>
 
     </v-card>
@@ -204,7 +176,7 @@ const props = defineProps<{
     price: number,
     formular: string,
     image: string,
-    number: Array<number>,
+    number: Array<number>
     co: number,
     cc: number,
     l: number,
@@ -214,43 +186,60 @@ const props = defineProps<{
 const path = "~"
 
 const numbers = [
-    317, 561, 905, 732, 620, 753, 774, 717, 890, 831, 839, 978, 802, 1011, 822, 649,
-    910, 773, 704, 802, 926, 1050, 968, 1098, 920, 986, 1025, 989, 787, 982, 710, 608,
-    818, 832, 903, 1031, 807, 668, 791, 894, 851, 660, 56, 652, 781, 673, 695, 1219, 1207,
-    968, 1255, 1198
-]
+    735, 633, 806, 964, 1003, 1117, 1138, 932, 971, 1073, 800, 697, 879, 1066, 523,
+    524, 660, 770, 588, 739, 795, 837, 891, 891, 986, 1120, 981, 1063, 969, 1103,
+    1089, 854, 881, 1585, 1087, 811, 922, 601, 641, 875, 782, 292, 51, 560, 495,
+    389, 816, 1017, 1127, 570, 1107, 1096
+];
 
 const inputList = ref(Array<Card>());
 const arrayY = ref(Array<number>());
 const sumY = ref(0);
 const meanY = ref(0);
+
 const meanPerDay = 1;
 const buyPerDay = 7;
 const orderPerYear = Number((7 / 365).toFixed(3));
 const levelOfService = 1.96;
 const squareRootSale = Number(Math.sqrt(orderPerYear + meanPerDay).toFixed(2));
+const weight = ref<1 | 2 | 3>(1);
+
 const standardDeviation = ref(0);
+
 const safetyStock = ref(0);
-const sumPower = ref(0);
-const sumXY = ref(0);
-const sumX = ref(0);
-const meanX = ref(0);
-const b1 = ref(0);
-const b0 = ref(0);
+
+// const sumPower = ref(0);
+
+// const sumXY = ref(0);
+
+// const sumX = ref(0);
+// const meanX = ref(0);
+
+// const b1 = ref(0);
+// const b0 = ref(0);
+
 const predict = ref(Array<number>());
 const sumPredict = ref(0);
+
 const error = ref(Array<number>());
 const sumError = ref(0);
+
 const absError = ref(Array<number>());
 const sumAbsError = ref(0);
+
 const errorPower = ref(Array<number>());
 const sumErrorPower = ref(0);
+
 const msd = ref(0);
 const mad = ref(0);
+
 const predictNextYear = ref(0);
+
 const orderPerBottle = ref(Array<number>());
 const sumOrderPerBottle = ref(0);
+
 const predictOrderPerBottle = ref(0);
+
 const EOQ = ref(0);
 const ROP = ref(0);
 
@@ -270,6 +259,7 @@ onBeforeMount(() => {
         }
         inputList.value.push(data);
     }
+
 })
 
 onMounted(() => {
@@ -310,81 +300,106 @@ function getStandardDeviation() {
 //     console.log("Safety Stock: ", safetyStock.value);
 // }
 
-function calSumPower() {
-    sumPower.value = 0;
-    inputList.value.forEach((item: any, index) => {
-        sumPower.value += Math.pow(index + 1, 2);
-    })
-    console.log("Sum Power: ", sumPower.value);
-}
+// function calSumPower() {
+//     sumPower.value = 0;
+//     inputList.value.forEach((item: any, index) => {
+//         sumPower.value += Math.pow(index + 1, 2);
+//     })
+//     console.log("Sum Power: ", sumPower.value);
+// }
 
-function calSumXY() {
-    sumXY.value = 0;
-    inputList.value.forEach((item: any, index) => {
-        sumXY.value += (index + 1) * item.value;
-    })
-    console.log("Sum XY: ", sumXY.value);
-}
+// function calSumXY() {
+//     sumXY.value = 0;
+//     inputList.value.forEach((item: any, index) => {
+//         sumXY.value += (index + 1) * item.value;
+//     })
+//     console.log("Sum XY: ", sumXY.value);
+// }
 
-function calSumX() {
-    sumX.value = 0;
-    inputList.value.forEach((item: any, index) => {
-        sumX.value += index + 1;
-    })
-    console.log("Sum X: ", sumX.value);
-}
+// function calSumX() {
+//     sumX.value = 0;
+//     inputList.value.forEach((item: any, index) => {
+//         sumX.value += index + 1;
+//     })
+//     console.log("Sum X: ", sumX.value);
+// }
 
-function calMeanX() {
-    meanX.value = 0;
-    meanX.value = sumX.value / inputList.value.length;
-    console.log("Mean X: ", meanX);
-}
+// function calMeanX() {
+//     meanX.value = 0;
+//     meanX.value = sumX.value / inputList.value.length;
+//     console.log("Mean X: ", meanX);
+// }
 
 
-function calB1() {
-    let b1_1 = 0;
-    let b1_2 = 0;
+// function calB1() {
+//     let b1_1 = 0;
+//     let b1_2 = 0;
 
-    b1_1 = sumXY.value - (inputList.value.length * meanX.value * meanY.value);
-    b1_2 = sumPower.value - (inputList.value.length * Math.pow(meanX.value, 2));
+//     b1_1 = sumXY.value - (inputList.value.length * meanX.value * meanY.value);
+//     b1_2 = sumPower.value - (inputList.value.length * Math.pow(meanX.value, 2));
 
-    console.log("B1_1: ", b1_1);
-    console.log("B1_2: ", b1_2);
+//     console.log("B1_1: ", b1_1);
+//     console.log("B1_2: ", b1_2);
 
-    b1.value = 0;
-    b1.value = b1_1 / b1_2;
-    console.log("B1: ", b1.value);
-}
+//     b1.value = 0;
+//     b1.value = b1_1 / b1_2;
+//     console.log("B1: ", b1.value);
+// }
 
-function calB0() {
-    b0.value = 0;
-    b0.value = meanY.value - (b1.value * meanX.value);
-    console.log("B0: ", b0.value);
-}
+// function calB0() {
+//     b0.value = 0;
+//     b0.value = meanY.value - (b1.value * meanX.value);
+//     console.log("B0: ", b0.value);
+// }
 
 function calPredict() {
     predict.value = [];
     sumPredict.value = 0;
     predictNextYear.value = 0;
+
+    predict.value.push(0);
+    predict.value.push(0);
+    predict.value.push(0);
+
     inputList.value.forEach((item: any, index) => {
-        predict.value.push(Number((b0.value + (b1.value * (index + 1))).toFixed(2)));
-        sumPredict.value += (b0.value + (b1.value * (index + 1)));
+        // console.log("item * 1", item.value * 1);
+        // console.log("inputList.value[index + 1].value * 2", inputList.value[index + 1].value * 2);
+        // console.log("inputList.value[index + 2].value * 3", inputList.value[index + 2].value * 3);
+
+        if (index + 2 < inputList.value.length) {
+            predict.value.push(Number((((item.value * 1) + (inputList.value[index + 1].value * 2) + (inputList.value[index + 2].value * 3)) / 6).toFixed(3)));
+            sumPredict.value += Number((((item.value * 1) + (inputList.value[index + 1].value * 2) + (inputList.value[index + 2].value * 3)) / 6).toFixed(3));
+        }
     })
 
-    predict.value.push(Number((b0.value + (b1.value * 53)).toFixed(2)));
-    predictNextYear.value = Number((b0.value + (b1.value * 53)).toFixed(2));
+    // const last = inputList.value[inputList.value.length - 1].value;
+    // const no2_formlast = inputList.value[inputList.value.length - 2].value;
+    // const no3_formLast = inputList.value[inputList.value.length - 3].value;
+
+    // predict.value.push(Number(((no3_formLast - 3 * 1) + (no2_formlast  + (last  * 3)).toFixed(3))));
+    predictNextYear.value = Number((predict.value[predict.value.length - 1]).toFixed(3));
 
     console.log("Predict: ", predict.value);
+    console.log("Predict Next Year: ", predictNextYear.value);
     console.log("Sum Predict: ", sumPredict.value);
 }
 
 function calError() {
     error.value = [];
     sumError.value = 0;
+    console.log("Error: ", error.value);
+    console.log("Sum Error: ", sumError.value);
+
     inputList.value.forEach((item: any, index) => {
-        error.value.push(item.value - predict.value[index]);
-        sumError.value += item.value - predict.value[index];
+        if (index + 3 < inputList.value.length) {
+            error.value.push(inputList.value[index + 3].value - predict.value[index + 3]);
+            sumError.value += inputList.value[index + 3].value - predict.value[index + 3];
+        } else {
+            error.value.push(0);
+        }
     })
+
+
     console.log("Error: ", error.value);
     console.log("Sum Error: ", sumError.value);
 
@@ -414,76 +429,49 @@ function calErrorPower() {
 
 // function calMSD() {
 //     msd.value = 0;
-//     msd.value = Number((sumErrorPower.value / inputList.value.length).toFixed(3));
+//     msd.value = Number((sumErrorPower.value / (inputList.value.length - 3)).toFixed(3));
 //     console.log("MSE: ", msd.value);
 // }
 
 function calMAD() {
     mad.value = 0;
-    mad.value = Number((sumAbsError.value / inputList.value.length).toFixed(3));
+    mad.value = Number((sumAbsError.value / (inputList.value.length - 3)).toFixed(3));
     console.log("MAD: ", mad.value);
 }
 
-function calOrderPerbottle() {
-    predict.value.forEach((item: any) => {
-        orderPerBottle.value.push(item + safetyStock.value);
-        sumOrderPerBottle.value += item + safetyStock.value;
-    })
+// function calOrderPerbottle() {
+//     predict.value.forEach((item: any, index) => {
+//         if (index > 3) {
+//             orderPerBottle.value.push(item + safetyStock.value);
+//             sumOrderPerBottle.value += item + safetyStock.value;
+//         }
+//     })
 
-    predictOrderPerBottle.value = Number((orderPerBottle.value[orderPerBottle.value.length - 1]).toFixed(2));
+//     predictOrderPerBottle.value = Number((orderPerBottle.value[orderPerBottle.value.length - 1]).toFixed(2));
 
-    console.log("Order Per Buttom: ", orderPerBottle.value);
-    console.log("Sum Order Per Buttom: ", sumOrderPerBottle.value);
-
-}
+//     console.log("Order Per Buttom: ", orderPerBottle.value);
+//     console.log("Sum Order Per Buttom: ", sumOrderPerBottle.value);
+// }
 
 function calEOQ() {
     EOQ.value = 0;
-    EOQ.value = Math.round(Number((Math.sqrt((2 * props.co * sumY.value) / props.cc)).toFixed(2)));
-    console.log("ROP: ", ROP.value);
+    console.log("D", sumPredict.value);
+    console.log("Co", props.co);
+    console.log("CC", props.cc);
 
+    const sumPredictEOQ = sumPredict.value - (predict.value[predict.value.length - 1]);
+    console.log("Sum Predict EOQ: ", sumPredictEOQ);
 
+    EOQ.value = Math.round(Number(Math.sqrt((2 * props.co * sumPredictEOQ) / props.cc).toFixed(2)));
+    console.log("EOQ: ", EOQ.value);
 }
 
 function calROP() {
     ROP.value = 0;
-    ROP.value = Math.round(Number(((meanY.value * props.l) + props.ss).toFixed(2)));
-    console.log("EOQ: ", EOQ.value);
+    const sumPredictEOQ = sumPredict.value - (predict.value[predict.value.length - 1]);
+    ROP.value = Math.round(Number((((sumPredictEOQ / 49) * props.l) + props.ss).toFixed(2)));
+    console.log("ROP: ", ROP.value);
 }
-
-// function calculateStandardDeviation(numbers: Array<number>) {
-//     // Calculate the mean (average) of the numbers
-//     const mean = numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
-
-//     // Calculate the squared differences from the mean
-//     const squaredDifferences = numbers.map(num => Math.pow(num - mean, 2));
-
-//     // Calculate the variance
-//     const variance = squaredDifferences.reduce((sum, squaredDiff) => sum + squaredDiff, 0) / numbers.length;
-
-//     // Calculate the standard deviation
-//     const standardDeviation = Math.sqrt(variance);
-
-//     return standardDeviation;
-// }
-
-
-// const numbers = [
-//     317, 561, 905, 732, 620, 753, 774, 717, 890, 831, 839, 978, 802, 1011, 822, 649,
-//     910, 773, 704, 802, 926, 1050, 968, 1098, 920, 986, 1025, 989, 787, 982, 710, 608,
-//     818, 832, 903, 1031, 807, 668, 791, 894, 851, 660, 56, 652, 781, 673, 695, 1219, 1207,
-//     968, 1255, 1198
-// ];
-
-// const stdev = calculateStandardDeviation(numbers);
-// console.log("Standard Deviation:", stdev);
-
-// function calSafyStock() {
-//     const data = inputList.value
-//     const dataList = data.map((item: any) => item.value)
-//     const sum = dataList.reduce((a: any, b: any) => a + b, 0);
-//     return sum / 52;
-// }
 
 function addInput() {
     const data = {
@@ -527,14 +515,7 @@ const options = ref({
     },
     // dataLabels: {
     //     enabled: true,
-    // },
-    // stroke: {
-    //   curve: 'smooth'
-    // },
-    // title: {
-    //     text: 'Average High & Low Temperature',
-    //     align: 'left'
-    // },
+    // }
 });
 
 const series = ref([

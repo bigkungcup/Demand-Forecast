@@ -49,8 +49,8 @@
 
         <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
             <v-btn rounded class="tw-text-white tw-bg-blue-600 tw-w-36"
-                @click="calSumX(), calSumY(), calMeanY(), getStandardDeviation(), calSumPower(), calSumXY(), calMeanX(), calB1(), calB0(), calPredict(),
-                    calError(), calAbsError(), calErrorPower(), calMAD(), calOrderPerbottle(), calEOQ(), calROP(), updateChart()">OK</v-btn>
+                @click="calSumX(), calSumY(), calMeanY(), getStandardDeviation(), calCMA1(), calCMA2(), calSF(), calSI(), calSIMean(), calDeaseasonalizedData(),
+                    calSumXY(), calSumPower(), calMeanX(), calB1(), calB0(), calTrend(), calForecast(), calError(), calAbsError(), calMAD(), calEOQ(), calROP(), updateChart()">OK</v-btn>
         </v-card-text>
     </v-card>
     <hr class="tw-border-black tw-bg-black">
@@ -69,7 +69,8 @@
                 </button> -->
             </div>
         </div>
-        <div class="tw-grid tw-grid-cols-3 tw-gap-5">
+
+        <div class="tw-grid tw-grid-cols-3 tw-gap-5 tw-items-center">
             <div class="tw-col-span-3">
                 <v-card-title
                     class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
@@ -100,7 +101,6 @@
             <!-- <div>
                 <v-card-title
                     class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
-                    ค่าเฉลี่ยสัมบูรณ์ของส่วนเบี่ยงเบน (MSD)
                     ค่าคลาดเคลื่อนกำลังสอง (MSD)
                 </v-card-title>
 
@@ -111,7 +111,6 @@
                     </v-responsive>
                 </v-card-text>
             </div> -->
-
             <div>
                 <v-card-title
                     class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
@@ -127,8 +126,6 @@
             </div>
 
             <div>
-
-
                 <v-card-title
                     class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
                     ยอดพยากรณ์สัปดาห์ถัดไป
@@ -137,7 +134,7 @@
                 <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
                     <v-responsive class="mx-auto" max-width="250">
                         <v-text-field clearable hide-details="auto" label="ยอดขายรวมทุกสัปดาห์"
-                            v-model="predictNextYear"></v-text-field>
+                            v-model="predictNextWeek"></v-text-field>
                     </v-responsive>
                 </v-card-text>
             </div>
@@ -160,7 +157,7 @@
 
                 <div>
                     <v-card-title
-                        class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10 tw-text-wrap tw-text-center">
+                        class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10  tw-text-center">
                         Economic Order Quantity : EOQ (ขวด)
                     </v-card-title>
 
@@ -172,6 +169,7 @@
                     </v-card-text>
                 </div>
             </div>
+
 
             <!-- <div class="tw-col-span-2">
                 <v-card-title
@@ -216,43 +214,79 @@ const path = "~"
 const numbers = [
     317, 561, 905, 732, 620, 753, 774, 717, 890, 831, 839, 978, 802, 1011, 822, 649,
     910, 773, 704, 802, 926, 1050, 968, 1098, 920, 986, 1025, 989, 787, 982, 710, 608,
-    818, 832, 903, 1031, 807, 668, 791, 894, 851, 660, 56, 652, 781, 673, 695, 1219, 1207,
-    968, 1255, 1198
-]
+    818, 832, 903, 1031, 807, 668, 791, 894, 851, 660, 56, 652, 781, 673, 695, 1219,
+    1207, 968, 1255, 1198
+];
 
 const inputList = ref(Array<Card>());
 const arrayY = ref(Array<number>());
+
 const sumY = ref(0);
 const meanY = ref(0);
 const meanPerDay = 1;
+
 const buyPerDay = 7;
+
 const orderPerYear = Number((7 / 365).toFixed(3));
 const levelOfService = 1.96;
+
 const squareRootSale = Number(Math.sqrt(orderPerYear + meanPerDay).toFixed(2));
 const standardDeviation = ref(0);
+
 const safetyStock = ref(0);
+
 const sumPower = ref(0);
 const sumXY = ref(0);
 const sumX = ref(0);
 const meanX = ref(0);
+
 const b1 = ref(0);
 const b0 = ref(0);
+
 const predict = ref(Array<number>());
 const sumPredict = ref(0);
+
 const error = ref(Array<number>());
 const sumError = ref(0);
 const absError = ref(Array<number>());
 const sumAbsError = ref(0);
+
 const errorPower = ref(Array<number>());
 const sumErrorPower = ref(0);
 const msd = ref(0);
+
 const mad = ref(0);
-const predictNextYear = ref(0);
+
+const predictNextWeek = ref(0);
+
 const orderPerBottle = ref(Array<number>());
 const sumOrderPerBottle = ref(0);
 const predictOrderPerBottle = ref(0);
+
+const cma1 = ref(Array<number>());
+const cma2 = ref(Array<number>());
+const sf = ref(Array<number>());
+
+const siNotAdjust = ref(Array<number>());
+const siNotAdjustSum = ref(Array<number>());
+const siNotAdjustMean = ref(Array<number>());
+
+const siAdjust = ref(Array<number>());
+const nsi = ref(Array<number>());
+const k = ref(0);
+
+const siMean = ref(Array<number>());
+const deaseasonalizedData = ref(Array<number>());
+
+const trend = ref(Array<number>());
+const forecast = ref(Array<number>());
+const sumForecast = ref(0);
+
 const EOQ = ref(0);
 const ROP = ref(0);
+
+const checkButton = ref(false);
+
 
 onBeforeMount(() => {
     // for (let i = 0; i < 52; i++) {
@@ -274,6 +308,8 @@ onBeforeMount(() => {
 
 onMounted(() => {
     updateChart();
+    console.log("orderPerYear", orderPerYear);
+
     console.log("squareRootSale", squareRootSale);
 });
 
@@ -304,11 +340,145 @@ function getStandardDeviation() {
     console.log("Standard Deviation: ", standardDeviation.value);
 }
 
-// function calSafyStock() {
-//     safetyStock.value = 0;
-//     safetyStock.value = Number((levelOfService * (standardDeviation.value * squareRootSale)).toFixed(2));
-//     console.log("Safety Stock: ", safetyStock.value);
-// }
+function calCMA1() {
+    cma1.value = [];
+    cma1.value.push(0);
+    cma1.value.push(0);
+
+    inputList.value.forEach((item: any, index) => {
+        if (index + 3 < inputList.value.length) {
+            cma1.value.push(Number((inputList.value[index].value + inputList.value[index + 1].value + inputList.value[index + 2].value + inputList.value[index + 3].value) / 4));
+        }
+    })
+
+    console.log("CMA1: ", cma1.value);
+}
+
+function calCMA2() {
+    cma2.value = [];
+    cma2.value.push(0);
+    cma2.value.push(0);
+
+    cma1.value.forEach((item: any, index) => {
+        if (index + 3 < cma1.value.length) {
+            cma2.value.push(Number(((cma1.value[index + 2] + cma1.value[index + 3]) / 2)));
+        }
+    })
+    console.log("CMA2: ", cma2.value);
+}
+
+function calSF() {
+    sf.value = [];
+    sf.value.push(0);
+    sf.value.push(0);
+
+    cma1.value.forEach((item: any, index) => {
+        if (index + 3 < cma1.value.length) {
+            sf.value.push(Number((inputList.value[index + 2].value / cma2.value[index + 2]).toFixed(3)));
+        }
+    })
+    console.log("SF: ", sf.value);
+}
+
+function calSI() {
+    siNotAdjust.value = [];
+    siNotAdjust.value.push(0);
+    siNotAdjust.value.push(0);
+
+    sf.value.forEach((item: any, index) => {
+        if (index + 2 < sf.value.length) {
+            siNotAdjust.value.push(Number((inputList.value[index + 2].value / cma2.value[index + 2]).toFixed(3)));
+        }
+    })
+
+    siNotAdjustSum.value = [];
+    let siNotAdjustSum_1 = 0;
+    let siNotAdjustSum_2 = 0;
+    let siNotAdjustSum_3 = 0;
+    let siNotAdjustSum_4 = 0;
+
+    siNotAdjust.value.forEach((item: any, index) => {
+        if (index % 4 === 0) {
+            siNotAdjustSum_1 += Number((siNotAdjust.value[index]).toFixed(3));
+        } else if (index % 4 === 1) {
+            siNotAdjustSum_2 += Number((siNotAdjust.value[index]).toFixed(3));
+        } else if (index % 4 === 2) {
+            siNotAdjustSum_3 += Number((siNotAdjust.value[index]).toFixed(3));
+        } else if (index % 4 === 3) {
+            siNotAdjustSum_4 += Number((siNotAdjust.value[index]).toFixed(3));
+        }
+    })
+
+    siNotAdjustSum.value.push(Number(siNotAdjustSum_1.toFixed(3)));
+    siNotAdjustSum.value.push(Number(siNotAdjustSum_2.toFixed(3)));
+    siNotAdjustSum.value.push(Number(siNotAdjustSum_3.toFixed(3)));
+    siNotAdjustSum.value.push(Number(siNotAdjustSum_4.toFixed(3)));
+
+    siNotAdjustMean.value = [];
+    siNotAdjustMean.value.push(Number((siNotAdjustSum_1 / 12).toFixed(3)));
+    siNotAdjustMean.value.push(Number((siNotAdjustSum_2 / 12).toFixed(3)));
+    siNotAdjustMean.value.push(Number((siNotAdjustSum_3 / 12).toFixed(3)));
+    siNotAdjustMean.value.push(Number((siNotAdjustSum_4 / 12).toFixed(3)));
+
+    let constantAdjustment = 0;
+    siNotAdjustMean.value.forEach((item: any) => {
+        constantAdjustment += item;
+    })
+    constantAdjustment = Number((4 / constantAdjustment).toFixed(3));
+
+    siAdjust.value = [];
+
+    for (let i = 0; i < 4; i++) {
+        siAdjust.value.push(constantAdjustment);
+    }
+    nsi.value = [];
+    for (let i = 0; i < 4; i++) {
+        nsi.value.push(Number((siNotAdjustMean.value[i] * siAdjust.value[i]).toFixed(3)));
+    }
+
+    k.value = Number((nsi.value[0] + nsi.value[1] + nsi.value[2] + nsi.value[3]).toFixed(2));
+
+    console.log("siNotAdjust: ", siNotAdjust.value);
+    console.log("siNotAdjustSum: ", siNotAdjustSum.value);
+    console.log("siNotAdjustMean: ", siNotAdjustMean.value);
+    console.log("siAdjust: ", siAdjust.value);
+    console.log("nsi: ", nsi.value);
+    console.log("k: ", k.value);
+}
+
+function calSIMean() {
+    siMean.value = [];
+
+    for (let index = 0; index < 52; index++) {
+        if (index % 4 === 0) {
+            siMean.value[index] = nsi.value[0];
+        } else if (index % 4 === 1) {
+            siMean.value[index] = nsi.value[1];
+        } else if (index % 4 === 2) {
+            siMean.value[index] = nsi.value[2];
+        } else if (index % 4 === 3) {
+            siMean.value[index] = nsi.value[3];
+        }
+    }
+    siMean.value.push(nsi.value[0]);
+    console.log("siMean: ", siMean.value);
+
+}
+
+function calDeaseasonalizedData() {
+    deaseasonalizedData.value = [];
+    inputList.value.forEach((item: any, index) => {
+        deaseasonalizedData.value.push(Number((inputList.value[index].value / siMean.value[index]).toFixed(3)));
+    })
+    console.log("Deaseasonalized Data: ", deaseasonalizedData.value);
+
+}
+
+function calSafyStock() {
+    safetyStock.value = 0;
+    safetyStock.value = Number((levelOfService * (standardDeviation.value * squareRootSale)).toFixed(2));
+    console.log("Safety Stock: ", safetyStock.value);
+}
 
 function calSumPower() {
     sumPower.value = 0;
@@ -345,45 +515,85 @@ function calB1() {
     let b1_1 = 0;
     let b1_2 = 0;
 
-    b1_1 = sumXY.value - (inputList.value.length * meanX.value * meanY.value);
-    b1_2 = sumPower.value - (inputList.value.length * Math.pow(meanX.value, 2));
+    console.log("Sum XY: ", sumXY.value);
+    console.log("Sum Power: ", sumPower.value);
+    console.log("Mean X: ", meanX.value);
+    console.log("Mean Y: ", meanY.value);
+
+
+    b1_1 = sumXY.value - (52 * meanX.value * meanY.value);
+    b1_2 = sumPower.value - (52 * Math.pow(meanX.value, 2));
 
     console.log("B1_1: ", b1_1);
     console.log("B1_2: ", b1_2);
 
     b1.value = 0;
-    b1.value = b1_1 / b1_2;
+    b1.value = Number((b1_1 / b1_2).toFixed(3));
     console.log("B1: ", b1.value);
 }
 
 function calB0() {
     b0.value = 0;
-    b0.value = meanY.value - (b1.value * meanX.value);
+    b0.value = Number((meanY.value - (b1.value * meanX.value)).toFixed(3));
     console.log("B0: ", b0.value);
 }
 
-function calPredict() {
-    predict.value = [];
-    sumPredict.value = 0;
-    predictNextYear.value = 0;
+function calTrend() {
+    trend.value = [];
     inputList.value.forEach((item: any, index) => {
-        predict.value.push(Number((b0.value + (b1.value * (index + 1))).toFixed(2)));
-        sumPredict.value += (b0.value + (b1.value * (index + 1)));
+        trend.value.push(Number((b0.value + (b1.value * (index + 1))).toFixed(2)));
     })
 
-    predict.value.push(Number((b0.value + (b1.value * 53)).toFixed(2)));
-    predictNextYear.value = Number((b0.value + (b1.value * 53)).toFixed(2));
+    trend.value.push(Number((b0.value + (b1.value * 53)).toFixed(2)));
+    console.log("Trend: ", trend.value);
 
-    console.log("Predict: ", predict.value);
-    console.log("Sum Predict: ", sumPredict.value);
 }
+
+function calForecast() {
+    forecast.value = [];
+    sumForecast.value = 0;
+    forecast.value.push(0);
+    forecast.value.push(0);
+    inputList.value.forEach((item: any, index) => {
+        if (index + 2 < inputList.value.length) {
+            forecast.value.push(Number((siMean.value[index + 2] * trend.value[index + 2]).toFixed(2)));
+            sumForecast.value += Number((siMean.value[index + 2] * trend.value[index + 2]).toFixed(2));
+        }
+    })
+    console.log("TESTTT", siMean.value[siMean.value.length - 1]);
+    console.log("TE2222222222222STTT", trend.value[trend.value.length - 1]);
+
+    forecast.value.push(Number((siMean.value[siMean.value.length - 1] * trend.value[trend.value.length - 1]).toFixed(2)));
+    predictNextWeek.value = Number((siMean.value[siMean.value.length - 1] * trend.value[trend.value.length - 1]).toFixed(2));
+    console.log("Forecast: ", forecast.value);
+}
+
+// function calPredict() {
+//     predict.value = [];
+//     sumPredict.value = 0;
+//     predictNextYear.value = 0;
+//     inputList.value.forEach((item: any, index) => {
+//         predict.value.push(Number((b0.value + (b1.value * (index + 1))).toFixed(2)));
+//         sumPredict.value += (b0.value + (b1.value * (index + 1)));
+//     })
+
+//     predict.value.push(Number((b0.value + (b1.value * 53)).toFixed(2)));
+//     predictNextYear.value = Number((b0.value + (b1.value * 53)).toFixed(2));
+
+//     console.log("Predict: ", predict.value);
+//     console.log("Sum Predict: ", sumPredict.value);
+// }
 
 function calError() {
     error.value = [];
+    error.value.push(0);
+    error.value.push(0);
     sumError.value = 0;
     inputList.value.forEach((item: any, index) => {
-        error.value.push(item.value - predict.value[index]);
-        sumError.value += item.value - predict.value[index];
+        if (index + 2 < inputList.value.length) {
+            error.value.push(Number((inputList.value[index + 2].value - forecast.value[index + 2]).toFixed(3)));
+            sumError.value += Number((inputList.value[index + 2].value - forecast.value[index + 2]).toFixed(3));
+        }
     })
     console.log("Error: ", error.value);
     console.log("Sum Error: ", sumError.value);
@@ -401,16 +611,16 @@ function calAbsError() {
     console.log("Sum Absolute Error: ", sumAbsError.value);
 }
 
-function calErrorPower() {
-    errorPower.value = [];
-    sumErrorPower.value = 0;
-    error.value.forEach((item: any) => {
-        errorPower.value.push(Math.pow(item, 2));
-        sumErrorPower.value += Math.pow(item, 2);
-    })
-    console.log("Error Power: ", errorPower.value);
-    console.log("Sum Error Power: ", sumErrorPower.value);
-}
+// function calErrorPower() {
+//     errorPower.value = [];
+//     sumErrorPower.value = 0;
+//     error.value.forEach((item: any) => {
+//         errorPower.value.push(Math.pow(item, 2));
+//         sumErrorPower.value += Math.pow(item, 2);
+//     })
+//     console.log("Error Power: ", errorPower.value);
+//     console.log("Sum Error Power: ", sumErrorPower.value);
+// }
 
 // function calMSD() {
 //     msd.value = 0;
@@ -439,51 +649,17 @@ function calOrderPerbottle() {
 
 function calEOQ() {
     EOQ.value = 0;
-    EOQ.value = Math.round(Number((Math.sqrt((2 * props.co * sumY.value) / props.cc)).toFixed(2)));
-    console.log("ROP: ", ROP.value);
-
-
+    EOQ.value = Math.round(Number(Math.sqrt((2 * props.co * sumForecast.value) / props.cc).toFixed(2)));
+    console.log("EOQ: ", EOQ.value);
 }
 
 function calROP() {
     ROP.value = 0;
-    ROP.value = Math.round(Number(((meanY.value * props.l) + props.ss).toFixed(2)));
-    console.log("EOQ: ", EOQ.value);
+    let avgForecast = sumForecast.value / 50;
+    ROP.value = Math.round(Number(((avgForecast * props.l) + props.ss).toFixed(2)));
+    console.log("ROP: ", ROP.value);
+
 }
-
-// function calculateStandardDeviation(numbers: Array<number>) {
-//     // Calculate the mean (average) of the numbers
-//     const mean = numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
-
-//     // Calculate the squared differences from the mean
-//     const squaredDifferences = numbers.map(num => Math.pow(num - mean, 2));
-
-//     // Calculate the variance
-//     const variance = squaredDifferences.reduce((sum, squaredDiff) => sum + squaredDiff, 0) / numbers.length;
-
-//     // Calculate the standard deviation
-//     const standardDeviation = Math.sqrt(variance);
-
-//     return standardDeviation;
-// }
-
-
-// const numbers = [
-//     317, 561, 905, 732, 620, 753, 774, 717, 890, 831, 839, 978, 802, 1011, 822, 649,
-//     910, 773, 704, 802, 926, 1050, 968, 1098, 920, 986, 1025, 989, 787, 982, 710, 608,
-//     818, 832, 903, 1031, 807, 668, 791, 894, 851, 660, 56, 652, 781, 673, 695, 1219, 1207,
-//     968, 1255, 1198
-// ];
-
-// const stdev = calculateStandardDeviation(numbers);
-// console.log("Standard Deviation:", stdev);
-
-// function calSafyStock() {
-//     const data = inputList.value
-//     const dataList = data.map((item: any) => item.value)
-//     const sum = dataList.reduce((a: any, b: any) => a + b, 0);
-//     return sum / 52;
-// }
 
 function addInput() {
     const data = {
@@ -498,6 +674,14 @@ function addInput() {
 
     }
 }
+
+const checkDatainput = computed(() => {
+    console.log(inputList.value.every((item: any) => item.value !== 0));
+    console.log(inputList.value);
+
+
+    checkButton.value = inputList.value.some(card => card.value === 0);
+})
 
 function deleteInput() {
     inputList.value.shift();
@@ -525,16 +709,6 @@ const options = ref({
     toolbar: {
         show: false
     },
-    // dataLabels: {
-    //     enabled: true,
-    // },
-    // stroke: {
-    //   curve: 'smooth'
-    // },
-    // title: {
-    //     text: 'Average High & Low Temperature',
-    //     align: 'left'
-    // },
 });
 
 const series = ref([
@@ -551,7 +725,7 @@ const series = ref([
 const updateChart = () => {
 
     const data: any = inputList.value
-    const data2: any = predict.value
+    const data2: any = forecast.value
 
 
     const actual = data.map((item: any) => item.value)

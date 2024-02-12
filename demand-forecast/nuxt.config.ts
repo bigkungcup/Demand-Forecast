@@ -23,4 +23,7 @@ export default defineNuxtConfig({
       title:'Forecast Project',
     },
   },
+  plugins: [
+    { src: '~/plugins/apexcharts.ts', mode: 'client' },
+  ],
 })

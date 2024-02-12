@@ -31,22 +31,17 @@
           </v-sheet>
         </NuxtLink>
         
-        <NuxtLink to="/sangsom"  class="tw-no-underline">
-          <v-sheet class="ma-5 pa-4 tw-text-4xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-space-x-10"> 
-            <img src="/images/sangsom.png" alt="sangsom" class="tw-w-[114px] tw-h-[114px]">
-            <div>SANGSOM</div> 
-          </v-sheet>
-        </NuxtLink>
+       
 
       </v-col>
 
       <v-col cols="12" sm="6">
-        <NuxtLink to="/my"  class="tw-no-underline">
+        <!-- <NuxtLink to="/my"  class="tw-no-underline">
         <v-sheet class="ma-5 pa-4 tw-text-4xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-space-x-10"> 
             <img src="/images/mybeer.png" alt="mybeer" class="tw-w-[114px] tw-h-[114px]">
             <div>MY</div> 
         </v-sheet>
-        </NuxtLink>
+        </NuxtLink> -->
 
         <NuxtLink to="/chang"  class="tw-no-underline">
         <v-sheet class="ma-5 pa-4 tw-text-4xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-space-x-10"> 
@@ -69,6 +64,12 @@
         </v-sheet>
         </NuxtLink>
       </v-col>
+      <NuxtLink to="/sangsom"  class="tw-no-underline tw-w-6/12">
+          <v-sheet class="ma-5 pa-4 tw-text-4xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-space-x-10"> 
+            <img src="/images/sangsom.png" alt="sangsom" class="tw-w-[114px] tw-h-[114px]">
+            <div>SANGSOM</div> 
+          </v-sheet>
+        </NuxtLink>
     </v-row>
   </v-container>
 </template>
