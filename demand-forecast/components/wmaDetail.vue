@@ -14,15 +14,17 @@
                 ราคาต่อขวด: {{ price }}
             </div>
 
-            <div class="tw-my-5">
+            <!-- <div class="tw-my-5">
                 วิธีที่ใช้ในการพยากรณ์: {{ formular }}
-            </div>
+            </div> -->
 
 
-            <div class="tw-grid tw-gap-y-5 tw-pt-10 tw-py-5">
+            <div class="tw-flex tw-flex-row tw-space-x-5 tw-items-center tw-pt-10 tw-py-5">
                 <div>
                     ข้อมูลยอดขาย (สูงสุด 52 สัปดาห์)
                 </div>
+                <v-icon class="tw-bg-black tw-rounded-full tw-text-white" @click="addInput">mdi-plus</v-icon>
+                <v-icon class="tw-bg-black tw-rounded-full tw-text-white" @click="deleteInput">mdi-minus</v-icon>
             </div>
 
             <div class="tw-grid tw-grid-cols-4 tw-gap-5 tw-items-center">
@@ -35,13 +37,14 @@
                         </v-responsive>
                     </div>
                 </div>
-                <v-icon class="tw-col-start-4 tw-justify-self-end" @click="addInput">mdi-plus</v-icon>
+                <!-- <v-icon class="tw-col-start-4 tw-justify-self-end" @click="addInput">mdi-plus</v-icon> -->
             </div>
         </v-card-text>
 
         <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
             <v-btn rounded class="tw-text-white tw-bg-blue-600 tw-w-36" @click="calSumY(), calMeanY(), getStandardDeviation(), calPredict(), calError(),
-                calAbsError(), calErrorPower(), calMAD(), calEOQ(), calROP(), updateChart(), saveData()">OK</v-btn>
+                calAbsError(), calErrorPower(), calMAD(), calEOQ(), calROP(), updateChart(), saveData()"
+                :disabled="inputList.length !== 52">OK</v-btn>
         </v-card-text>
     </v-card>
     <hr class="tw-border-black tw-bg-black">
@@ -51,39 +54,32 @@
 
         <div class="tw-p-5 tw-flex tw-justify-center">
             <div class="tw-flex tw-flex-col tw-space-y-5">
-                <div class="tw-text-3xl tw-font-extrabold tw-justify-center tw-flex">กราฟแสดงยอดขายรายสัปดาห์</div>
-                <div class="tw-text-xl tw-font-extrabold tw-justify-center tw-flex">ค่าพยากรณ์ยอดขายปีถัดไป (หน่วย : ขวด)
+                <div class="tw-text-3xl tw-font-extrabold tw-justify-center tw-flex">กราฟแสดงผลเปรียบเทียบยอดขายรายสัปดาห์
+                </div>
+                <div class="tw-text-xl tw-font-extrabold tw-justify-center tw-flex">ค่าพยากรณ์ยอดขายสัปดาห์ถัดไป (หน่วย :
+                    ขวด)
                 </div>
                 <apexchart :key="series" height="400" width="1100" :options="options" :series="series"></apexchart>
             </div>
         </div>
-        <div class="tw-grid tw-grid-cols-3 tw-gap-5">
+        <!-- <div class="tw-grid tw-grid-cols-3 tw-gap-5"> -->
             <div class="tw-col-span-3">
                 <v-card-title
                     class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
-                    Reorder Point:ROP (ขวด)
-                </v-card-title>
-
-                <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
-                    <v-responsive class="mx-auto" max-width="250">
-                        <v-text-field clearable hide-details="auto" label="ค่าพยากรณ์" v-model="ROP"></v-text-field>
-                    </v-responsive>
-                </v-card-text>
-            </div>
-
-            <div>
-                <v-card-title
-                    class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
-                    ยอดขายรวม
+                    ยอดพยากรณ์สัปดาห์ถัดไป
                 </v-card-title>
 
                 <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
                     <v-responsive class="mx-auto" max-width="250">
                         <v-text-field clearable hide-details="auto" label="ยอดขายรวมทุกสัปดาห์"
-                            v-model="sumY"></v-text-field>
+                            v-model="predictNextYear"></v-text-field>
                     </v-responsive>
                 </v-card-text>
             </div>
+
+            <!-- <div>
+
+            </div> -->
 
             <!-- <div>
                 <v-card-title
@@ -100,50 +96,8 @@
                 </v-card-text>
             </div> -->
 
-            <div>
-                <v-card-title
-                    class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
-                    ค่าเฉลี่ยยอดขายต่อสัปดาห์
-                </v-card-title>
-
-                <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
-                    <v-responsive class="mx-auto" max-width="250">
-                        <v-text-field clearable hide-details="auto" label="ยอดขายรวมทุกสัปดาห์"
-                            v-model="meanY"></v-text-field>
-                    </v-responsive>
-                </v-card-text>
-            </div>
-
-            <div>
-                <v-card-title
-                    class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
-                    ยอดพยากรณ์สัปดาห์ถัดไป
-                </v-card-title>
-
-                <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
-                    <v-responsive class="mx-auto" max-width="250">
-                        <v-text-field clearable hide-details="auto" label="ยอดขายรวมทุกสัปดาห์"
-                            v-model="predictNextYear"></v-text-field>
-                    </v-responsive>
-                </v-card-text>
-            </div>
-
-            <div class="tw-flex tw-flex-row tw-justify-center tw-col-span-3 tw-gap-x-20">
-                <div>
-                    <v-card-title
-                        class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
-                        <!-- ความคาดเคลี่ยนกำลังสอง (MAD) -->
-                        ค่าเฉลี่ยสัมบูรณ์ของส่วนเบี่ยงเบน (MAD)
-                    </v-card-title>
-
-                    <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
-                        <v-responsive class="mx-auto" max-width="250">
-                            <v-text-field clearable hide-details="auto" label="ยอดขายรวมทุกสัปดาห์"
-                                v-model="mad"></v-text-field>
-                        </v-responsive>
-                    </v-card-text>
-                </div>
-
+          
+            <div class="tw-flex tw-flex-row tw-justify-center tw-gap-x-20 tw-items-center">
                 <div>
                     <v-card-title
                         class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10 tw-text-wrap tw-text-center">
@@ -157,8 +111,65 @@
                         </v-responsive>
                     </v-card-text>
                 </div>
+
+                <div>
+                    <v-card-title
+                        class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
+                        Reorder Point:ROP (ขวด)
+                    </v-card-title>
+
+                    <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
+                        <v-responsive class="mx-auto" max-width="250">
+                            <v-text-field clearable hide-details="auto" label="ค่าพยากรณ์" v-model="ROP"></v-text-field>
+                        </v-responsive>
+                    </v-card-text>
+                </div>
             </div>
-        </div>
+
+
+            <div class="tw-flex tw-flex-row tw-justify-center tw-gap-x-40 tw-items-center">
+                <div class="tw-pl-6">
+                    <v-card-title
+                        class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
+                        ค่าเฉลี่ยยอดขายต่อสัปดาห์
+                    </v-card-title>
+
+                    <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
+                        <v-responsive class="mx-auto" max-width="250">
+                            <v-text-field clearable hide-details="auto" label="ยอดขายรวมทุกสัปดาห์"
+                                v-model="meanY"></v-text-field>
+                        </v-responsive>
+                    </v-card-text>
+                </div>
+
+                <div class="tw-pl-7">
+                    <!-- <v-card-title
+                        class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
+                        ความคาดเคลี่ยนกำลังสอง (MAD)
+                        ค่าเฉลี่ยสัมบูรณ์ของส่วนเบี่ยงเบน (MAD)
+                    </v-card-title>
+
+                    <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
+                        <v-responsive class="mx-auto" max-width="250">
+                            <v-text-field clearable hide-details="auto" label="ยอดขายรวมทุกสัปดาห์"
+                                v-model="mad"></v-text-field>
+                        </v-responsive>
+                    </v-card-text> -->
+
+                    <v-card-title
+                        class="tw-text-2xl tw-font-extrabold tw-flex tw-flex-row tw-items-center tw-justify-center tw-space-y-5 tw-py-10">
+                        ยอดขายรวมต่อปี
+                    </v-card-title>
+
+                    <v-card-text class="tw-text-2xl tw-font-bold tw-flex tw-items-center tw-justify-center tw-space-y-5 ">
+                        <v-responsive class="mx-auto" max-width="250">
+                            <v-text-field clearable hide-details="auto" label="ยอดขายรวมทุกสัปดาห์"
+                                v-model="sumY"></v-text-field>
+                        </v-responsive>
+                    </v-card-text>
+                </div>
+            </div>
+        <!-- </div> -->
 
     </v-card>
 </template>
@@ -248,19 +259,20 @@ const ROP = ref(0);
 onBeforeMount(() => {
     let dataBlend = null;
     let dataLeo = null;
-    if(process.client){
+    if (process.client) {
         dataBlend = localStorage.getItem('storedDataBlend');
         dataLeo = localStorage.getItem('storedDataLeo');
     }
-    if(dataBlend != null && props.name == "BLEND 285"){
+    if (dataBlend != null && props.name == "BLEND 285") {
         inputList.value = JSON.parse(dataBlend);
-    }else if(dataLeo != null && props.name == "LEO"){
+    } else if (dataLeo != null && props.name == "LEO") {
         inputList.value = JSON.parse(dataLeo);
-    }else{
-        for (let i = 0; i < 52; i++) {
+    } else {
+        for (let i = 0; i < 2; i++) {
             const data = {
                 week: i + 1,
-                value: props.number[i]
+                // value: props.number[i]
+                value: 0
             }
             inputList.value.push(data);
         }
@@ -487,10 +499,10 @@ function calROP() {
     console.log("ROP: ", ROP.value);
 }
 
-function saveData(){
-    if(props.name == "BLEND 285"){
+function saveData() {
+    if (props.name == "BLEND 285") {
         localStorage.setItem('storedDataBlend', JSON.stringify(inputList.value));
-    }else if(props.name == "LEO"){
+    } else if (props.name == "LEO") {
         localStorage.setItem('storedDataLeo', JSON.stringify(inputList.value));
     }
 }
