@@ -47,11 +47,11 @@
                         <span>{{ index + 1 }}.</span>
                         <v-responsive class="mx-auto" max-width="400">
                             <v-text-field clearable hide-details="auto" :label="`สัปดาห์ที่ ${index + 1} `"
-                                v-model="data.value"></v-text-field>
+                                v-model.number="data.value"></v-text-field>
                         </v-responsive>
                     </div>
                 </div>
-                <v-icon class="tw-col-start-4 tw-justify-self-end" @click="addInput">mdi-plus</v-icon>
+                <!-- <v-icon class="tw-col-start-4 tw-justify-self-end" @click="addInput">mdi-plus</v-icon> -->
             </div>
         </v-card-text>
 
